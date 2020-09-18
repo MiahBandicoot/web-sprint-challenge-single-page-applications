@@ -6,23 +6,21 @@ import formschema from './formschema'
 
 const initial = {
     name:'',
-    topping1:false,
-    topping2:false,
-    topping3:false,
-    topping4:false,
+    toppings:{
+        Pepperoni:false,
+        Pineapple:false,
+        Bacon:false,
+        Mushrooms:false,
+    },
     specInst:'',
+    size:'',
 }
 const errors = {
     name:'',
-    topping1:'',
-    topping2:'',
-    topping3:'',
-    topping4:'',
-    specInst:'',
+    size:'',
 }
 
-const Pizza = (props) =>{
-    const {order, setOrder} = props
+const Form = (props) =>{
     const [content, setContent] = useState(initial)
     const [contentError,setContentError] = useState(errors)
     const [disb,setdisb] = useState(true)
@@ -56,7 +54,11 @@ const Pizza = (props) =>{
             const {name, checked} = event.target
             setContent({
                 ...content,
-                [name]:checked,
+                toppings:{
+                    ...content.toppings,
+                   [name]:checked, 
+                }
+                
             })
         }
     function Submit(event){
@@ -64,20 +66,92 @@ const Pizza = (props) =>{
         const newOrder = {
             name:content.name.trim(),
             specInst:content.specInst.trim(),
+            size:content.size,
+            toppings:Object.keys(content.toppings).filter(top=>content.toppings[top])
         }
         if(!newOrder.name||!newOrder.specInst)
         {return}
-        setContent(initial)
         postOrder(newOrder)
+        setContent(initial)
     }
     const postOrder = (useOrder) => {
-        axios.post(useOrder)
+        axios.post('https://reqres.in/api/users',useOrder)
         .then(response => {
-            console.log(response)
+            console.log(response.data)
+            
         })
-    }
+        }
+        useEffect(()=>{
+            formschema.isValid(content)
+            .then(valid =>{
+                setdisb(!valid)
+            })
+        })
     return(
-<p> working</p>
+        <form onSubmit = {Submit}>
+            <input
+            name = 'name'
+            type = 'text'
+            placeholder = 'Enter Name'
+            value = {content.name}
+            onChange = {handleC}
+            />
+            <div>
+            <input
+            name = 'Pepperoni'
+            type = 'checkbox'
+            checked = {content.toppings.Pepperoni === true}
+            onChange = {handleBox}
+            />
+            <label for = 'toppings'>Pepperoni</label>
+            <input
+            name = 'Pineapple'
+            type = 'checkbox'
+            checked = {content.toppings.Pineapple === true}
+            onChange = {handleBox}
+            />
+            <label for = 'toppings'>Pineapple</label>
+            <input
+            name = 'Bacon'
+            type = 'checkbox'
+            checked = {content.toppings.Bacon === true}
+            onChange = {handleBox}
+            />
+            <label for = 'toppings'>Bacon</label>
+            <input
+            name = 'Mushrooms'
+            type = 'checkbox'
+            checked = {content.toppings.Mushrooms === true}
+            onChange = {handleBox}
+            />
+            <label for = 'toppings'>Mushrooms</label>
+            </div>
+            <input
+            name = 'specInst'
+            type = 'text'
+            placeholder = 'Special instructions'
+            value = {content.specInst}
+            onChange = {handleC}
+            />
+            <select
+            name = 'size'
+            value = {content.size}
+            onChange = {handleC}
+            >
+                <option value = ''>Select a Size</option>
+                <option value = '12"'>12"</option>
+                <option value = '16"'>16"</option>
+                <option value = '24"'>24"</option>
+            </select>
+            <div>
+                <button disabled = {disb} type = 'submit'>Add to Order</button>
+            </div>
+            <div>
+                {contentError.name}
+                {contentError.size}
+            </div>
+        </form>
 )
-})
-export default Pizza;
+}
+
+export default Form;
