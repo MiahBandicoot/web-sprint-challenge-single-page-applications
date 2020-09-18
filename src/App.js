@@ -1,11 +1,21 @@
 import React from "react";
+// import axios from 'axios';
+import {Route} from 'react-router-dom';
+import Form from './form'
+import Home from './homepage'
 
 const App = () => {
+
+
   return (
-    <>
-      <h1>Lambda Eats</h1>
-      <p>You can remove this code and create your own header</p>
-    </>
+  <div>
+    <Route exact path = '/'>
+      <Home/>
+    </Route>
+    <Route exact path = '/pizza'>
+      <Form/>
+    </Route>
+  </div>
   );
 };
 export default App;
